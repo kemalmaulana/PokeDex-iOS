@@ -1,0 +1,6 @@
+framework module Pods_PokeDex_iOS_PokeDex_iOSUITests {
+  umbrella header "Pods-PokeDex-iOS-PokeDex-iOSUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
