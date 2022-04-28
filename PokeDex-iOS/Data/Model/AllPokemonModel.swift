@@ -27,8 +27,8 @@ import Alamofire
 // MARK: - AllPokemonModel
 struct AllPokemonModel: Codable {
     let count: Int
-    let next: String
-    let previous: JSONNull?
+    let next: String?
+    let previous: String?
     let results: [Result]
 
     enum CodingKeys: String, CodingKey {
@@ -60,7 +60,7 @@ extension AllPokemonModel {
     func with(
         count: Int? = nil,
         next: String? = nil,
-        previous: JSONNull?? = nil,
+        previous: String?? = nil,
         results: [Result]? = nil
     ) -> AllPokemonModel {
         return AllPokemonModel(

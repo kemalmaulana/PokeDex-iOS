@@ -18,31 +18,43 @@ struct AllPokemonView: View {
                 ScrollView {
                     LazyVGrid(columns: viewModel.gridItemLayout, spacing: 20) {
                         ForEach(viewModel.allPokemon, id: \.url) { result in
-                            NavigationLink(destination: DetailPokemonView()) {
-                                AsyncImage(url: URL(string: getImageUrl(pokeId: String(result.url.subStringAfter(string: "/pokemon").replacingOccurrences(of: "/", with: ""))))) { image in
-                                    image.resizable()
-                                } placeholder: {
-                                    Color.red
+                            NavigationLink(destination: DetailPokemonView(result.name.capitalized)) {
+                                VStack {
+                                    AsyncImage(url: URL(string: getImageUrl(pokeId: String(result.url.subStringAfter(string: "/pokemon").replacingOccurrences(of: "/", with: ""))))
+                                    ) { image in
+                                        image.resizable()
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    
+                                    Text(result.name.capitalized)
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.white)
+                                        .frame(width: 100, height: 20)
+                                        .background(.green)
                                 }
-                                .font(.system(size: 30))
-                                .frame(width: 100, height: 100)
+                                .frame(width: 100, height: 120)
                                 .background(.yellow)
                                 .cornerRadius(10)
+                                .onAppear {
+                                    if((Int(result.url.subStringAfter(string: "/pokemon").replacingOccurrences(of: "/", with: "")) ?? 0) % 20 == 0) {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                            viewModel.loadMore()
+                                        }
+                                    }
+                                    
+                                }
                                 
                             }
                             
                         }
                     }
                 }
-                .isPagingEnabled()
-                .onAppear {
-                    viewModel.offset += 20
-                    viewModel.fetchAllPokemon(offset: viewModel.offset)
-                    print(viewModel.offset)
-                }
+                //                .isPagingEnabled()
             }
             .navigationTitle(Text("PokeDex"))
         }
+        .ignoresSafeArea()
         
     }
 }

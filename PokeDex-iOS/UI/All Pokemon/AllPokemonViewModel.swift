@@ -16,7 +16,7 @@ class AllPokemonViewModel: ObservableObject {
     @Published var allPokemon: [Result] = []
     
     @Published var colors: [Color] = [.yellow, .purple, .green]
-
+    
     @Published var gridItemLayout = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     
     @Published var offset = 0
@@ -25,9 +25,22 @@ class AllPokemonViewModel: ObservableObject {
         fetchAllPokemon(offset: offset)
     }
     
+    func loadMore() {
+        offset += 20
+        fetchAllPokemon(offset: offset)
+        print(offset)
+    }
+    
+    
     func fetchAllPokemon(offset: Int) {
-        guard let url = URL(string: "https://pokeapi.co/api/v2/pokemon?offset=\(offset)&limit=20") else { return }
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+        guard var urlComponent = URLComponents(string: "https://pokeapi.co/api/v2/pokemon") else { return }
+        
+        urlComponent.queryItems = [
+            URLQueryItem(name: "limit", value: String(20)),
+            URLQueryItem(name: "offset", value: String(offset)),
+        ]
+        
+        let task = URLSession.shared.dataTask(with: urlComponent.url!) { data, response, error in
             guard let data = data, error == nil else {
                 return
             }
@@ -37,10 +50,9 @@ class AllPokemonViewModel: ObservableObject {
                 let model = try JSONDecoder().decode(AllPokemonModel.self, from: data)
                 DispatchQueue.main.async {
                     self.allPokemon += model.results
-//                    print(String(self.allPokemon[0].url.replacingOccurrences(of: "pokemon/", with: "").replacingOccurrences(of: "/", with: "") ))
                 }
             } catch {
-                print("Failed All Pokemon Parsing")
+                print("Failed All Pokemon Parsing \(error)")
             }
         }
         task.resume()
